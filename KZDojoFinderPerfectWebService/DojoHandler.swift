@@ -26,27 +26,31 @@ func loadDojoDatabaseResultsFrom(results: PostgreSQL.PGResult) throws -> [[Strin
 
 	var rows = [[String: AnyObject]]()
 
-	let fieldNames = loadDojoFieldNameMappingsFrom(results)
+	let fieldNames = loadResultsFieldNameMappingsFrom(results)
 	for row in 0..<results.numTuples() {
 		rows.append(loadDojoDatabaseResultsFrom(results, forRow: row, withFieldNames: fieldNames))
 	}
 	return rows
 }
+//
+///**
+//Loads the field name mappings, mapping a name to a field index...
+//because apparently you can only access fields from a result by index and not name
+//*/
+//func loadDojoFieldNameMappingsFrom(results: PostgreSQL.PGResult) -> [String: Int] {
+//	var fieldNames = [String: Int]()
+//	for col in 0..<results.numFields() {
+//		fieldNames[results.fieldName(col)!] = col
+//	}
+//	return fieldNames;
+//}
 
 /**
-Loads the field name mappings, mapping a name to a field index...
-because apparently you can only access fields from a result by index and not name
-*/
-func loadDojoFieldNameMappingsFrom(results: PostgreSQL.PGResult) -> [String: Int] {
-	var fieldNames = [String: Int]()
-	for col in 0..<results.numFields() {
-		fieldNames[results.fieldName(col)!] = col
-	}
-	return fieldNames;
-}
+Loads a single row of dojo results from the database results, the intention is to make it "easier" to load
+results based on the needs of the caller, without having to further duplicate code where possible
 
-/**
-Loads an individual dojo from a given result and row
+When I figure out how to determine the column types, this will probably become a utility method in
+the database utilities file
 */
 func loadDojoDatabaseResultsFrom(results: PostgreSQL.PGResult, forRow row: Int, withFieldNames fieldNames:[String: Int]) -> [String: AnyObject] {
 	var values = [String: AnyObject]()
