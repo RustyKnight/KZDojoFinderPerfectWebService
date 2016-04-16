@@ -15,6 +15,7 @@
 		705DED771CC1068D002D5081 /* JsonUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 705DED761CC1068D002D5081 /* JsonUtilities.swift */; };
 		705DED791CC106B0002D5081 /* DatabaseUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 705DED781CC106B0002D5081 /* DatabaseUtilities.swift */; };
 		70AAFD961CC1A9ED0013555B /* SessionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFD951CC1A9ED0013555B /* SessionHandler.swift */; };
+		70AAFD9D1CC2253F0013555B /* RegionalContactHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		705DED761CC1068D002D5081 /* JsonUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonUtilities.swift; sourceTree = "<group>"; };
 		705DED781CC106B0002D5081 /* DatabaseUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUtilities.swift; sourceTree = "<group>"; };
 		70AAFD951CC1A9ED0013555B /* SessionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionHandler.swift; sourceTree = "<group>"; };
+		70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegionalContactHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 			children = (
 				705DED741CC1067A002D5081 /* DojoHandler.swift */,
 				70AAFD951CC1A9ED0013555B /* SessionHandler.swift */,
+				70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */,
 			);
 			name = Handlers;
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 			files = (
 				705DED751CC1067A002D5081 /* DojoHandler.swift in Sources */,
 				705DED731CC10646002D5081 /* PerfectHandlers.swift in Sources */,
+				70AAFD9D1CC2253F0013555B /* RegionalContactHandler.swift in Sources */,
 				705DED771CC1068D002D5081 /* JsonUtilities.swift in Sources */,
 				705DED791CC106B0002D5081 /* DatabaseUtilities.swift in Sources */,
 				70AAFD961CC1A9ED0013555B /* SessionHandler.swift in Sources */,

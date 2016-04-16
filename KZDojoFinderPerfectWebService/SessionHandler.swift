@@ -72,14 +72,14 @@ class GetDojoSessionsHandler: RequestHandler {
 			do {
 				let results = connection.exec("select * from sessions where sessions.dojokey = $1",
 				                     params: [dojoKey])
-				let dojos = try loadSessionDatabaseResultsFrom(results)
+				let sessions = try loadSessionDatabaseResultsFrom(results)
 				
 				do {
 					var jsonResults = [String: AnyObject]()
 					jsonResults["status"] = "ok"
-					jsonResults["count"] = dojos.count
+					jsonResults["count"] = sessions.count
 					jsonResults["dojo"] = try loadDojoByKey(dojoKey, fromConnection: connection)
-					jsonResults["sessions"] = dojos
+					jsonResults["sessions"] = sessions
 					
 					encodeResponse(jsonResults, forResponse: response)
 				} catch let message {
@@ -89,35 +89,6 @@ class GetDojoSessionsHandler: RequestHandler {
 			} catch let message {
 				encodeErrorResponse(400, withMessage: "Failed to execute request: \(message)", forResponse: response)
 			}
-			
-//			let p = PGConnection()
-//			let status = connectToDatabase(p)
-//			defer {
-//				p.close()
-//			}
-//			if status == .OK {
-//				let results = p.exec("select * from sessions where sessions.dojokey = $1",
-//				                     params: [dojoKey])
-//				if results.status() == PGResult.StatusType.TuplesOK {
-//					let sessions = loadSessionDatabaseResultsFrom(results)
-//					
-//					do {
-//						var jsonResults = [String: AnyObject]()
-//						jsonResults["status"] = "ok"
-//						jsonResults["count"] = sessions.count
-//						jsonResults["dojo"] = try dojoByKey(dojoKey, fromConnection: p)
-//						jsonResults["sessions"] = sessions
-//						
-//						encodeResponse(jsonResults, forResponse: response)
-//					} catch let message {
-//						encodeErrorResponse(400, withMessage: "\(message)", forResponse: response)
-//					}
-//				} else {
-//					encodeErrorResponse(400, withMessage: "Failed to query the database, responded with status of \(results.status())", forResponse: response)
-//				}
-//			} else {
-//				encodeErrorResponse(400, withMessage: "Failed to connect to database, responded with status of \(status)", forResponse: response)
-//			}
 			
 		} else {
 			encodeErrorResponse(400, withMessage: "One or missing parameters", forResponse: response)

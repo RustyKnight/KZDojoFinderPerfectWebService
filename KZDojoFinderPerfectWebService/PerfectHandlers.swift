@@ -23,4 +23,8 @@ public func PerfectServerModuleInit() {
 	Routing.Routes["GET", "/sessionsForDojo"] = { _ in
 		return GetDojoSessionsHandler()
 	}
+
+	Routing.Routes["GET", "/contactForRegion"] = { _ in
+		return GetRegionContactHandler()
+	}
 }
