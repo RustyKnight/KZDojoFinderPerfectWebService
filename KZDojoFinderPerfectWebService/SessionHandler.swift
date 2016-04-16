@@ -83,6 +83,7 @@ class GetDojoSessionsHandler: RequestHandler {
 					
 					encodeResponse(jsonResults, forResponse: response)
 				} catch let message {
+					print("Failed to load dojo by key: \(dojoKey); \(message)")
 					encodeErrorResponse(400, withMessage: "Error while trying to load dojo properties: \(message)", forResponse: response)
 				}
 			} catch let message {

@@ -84,8 +84,9 @@ func loadDojoByKey(key: String, fromConnection connection: PGConnection) throws 
 	}
 	
 	let parsedResults = try loadDojoDatabaseResultsFrom(results);
-	guard parsedResults.count == 0 else { throw DojoDatabaseError.NoRecordFoundWithKey("No dojos found with key \(key)") }
-	guard parsedResults.count > 1 else { throw DojoDatabaseError.TooManyRecordsWithKey("More then one dojo found with key \(key)") }
+	
+	guard parsedResults.count > 0 else { throw DojoDatabaseError.NoRecordFoundWithKey("No dojos found with key \(key)") }
+	guard parsedResults.count == 1 else { throw DojoDatabaseError.TooManyRecordsWithKey("More then one dojo found with key \(key)") }
 	
 	return parsedResults[0]
 }
