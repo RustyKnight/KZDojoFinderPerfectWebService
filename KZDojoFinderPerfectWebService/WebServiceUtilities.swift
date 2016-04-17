@@ -45,7 +45,28 @@ struct RequestResponse {
 	let count: Int
 }
 
+/**
+Provides the functionality for parsing the database results
+
+The request parameters and values are supplied in case they are need for any
+additional information
+
+The function returns the RequestResponse which contains the json key to use,
+the values to be retured and the number of values, which is added to the json
+as the "count" parameter
+*/
 typealias ResultParser = (PGResult, [String: String]) throws -> RequestResponse
+
+/**
+Provides the functionality for building the actual query which is executed against
+the database.
+
+The request parameters and values are provide so that they can be bound to the
+queries parameters based on the requirements of the query.
+
+Returns the Query, including the query text and the parameters that are to be
+bound to the queries parameters
+*/
 typealias DatabaseQuery = ([String: String]) -> Query
 
 /**

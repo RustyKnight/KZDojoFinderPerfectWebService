@@ -21,7 +21,7 @@ enum DojoDatabaseError: ErrorType {
 This returns an array of rows stored in a simple dictionary which represent
 the data for from the Dojos table in the database.
 */
-func loadDojoDatabaseResultsFrom(results: PostgreSQL.PGResult) throws -> [[String: AnyObject]]{
+func parseDojoDatabaseResultsFrom(results: PostgreSQL.PGResult) throws -> [[String: AnyObject]]{
 	guard results.status() == PGResult.StatusType.TuplesOK else { throw DatabaseError.QueryFailed("Database query for Dojos failed, database returned \(results.status())")}
 
 	var rows = [[String: AnyObject]]()
@@ -83,7 +83,7 @@ func loadDojoByKey(key: String, fromConnection connection: PGConnection) throws 
 		throw DatabaseError.QueryFailed("Query for dojo by key (\(key)) failed, database returned \(results.status())")
 	}
 	
-	let parsedResults = try loadDojoDatabaseResultsFrom(results);
+	let parsedResults = try parseDojoDatabaseResultsFrom(results);
 	
 	guard parsedResults.count > 0 else { throw DojoDatabaseError.NoRecordFoundWithKey("No dojos found with key \(key)") }
 	guard parsedResults.count == 1 else { throw DojoDatabaseError.TooManyRecordsWithKey("More then one dojo found with key \(key)") }
@@ -97,47 +97,25 @@ Handler for getting the dojos within a specific region/area
 */
 public class GetDojosWithinHandler: RequestHandler {
 	
+	func queryDatabase(parameters: [String: String]) -> Query {
+		return Query(query: "select * from dojos where latitude < $1 and latitude > $2 and longitude > $3 and longitude < $4",
+		             parameters: [parameters["startLat"]!, parameters["endLat"]!, parameters["startLon"]!, parameters["endLon"]!])
+	}
+	
+	func parseResults(results: PGResult, parameters: [String: String]) throws -> RequestResponse {
+		let dojos = try parseDojoDatabaseResultsFrom(results)
+		return RequestResponse(key: "dojos", value: dojos, count: dojos.count)
+	}
+	
 	public func handleRequest(request: WebRequest, response: WebResponse) {
-		
-		print("parms \(request.params())")
-		
-		let startLat = request.param("startLat")
-		let startLon = request.param("startLon")
-		let endLat = request.param("endLat")
-		let endLon = request.param("endLon")
-		
-		if let startLat = startLat, let startLon = startLon, let endLat = endLat, let endLon = endLon {
-			
-			let connection = PGConnection()
-			defer {
-				connection.close()
-			}
-			let status = connectToDatabase(connection)
-			
-			guard status == .OK else {
-				encodeErrorResponse(400, withMessage: "Failed to connect to database, responded with status of \(status)", forResponse: response)
-				return;
-			}
-			
-			do {
-				let results = connection.exec("select * from dojos where latitude < $1 and latitude > $2 and longitude > $3 and longitude < $4",
-				                     params: [startLat, endLat, startLon, endLon])
-				let dojos = try loadDojoDatabaseResultsFrom(results)
-				
-				var jsonResults = [String: AnyObject]()
-				jsonResults["status"] = "ok"
-				jsonResults["count"] = dojos.count
-				jsonResults["dojos"] = dojos
-				
-				encodeResponse(jsonResults, forResponse: response)
-			} catch let message {
-				encodeErrorResponse(400, withMessage: "Failed to execute request: \(message)", forResponse: response)
-			}
-		
-		} else {
-			encodeErrorResponse(400, withMessage: "One or missing parameters", forResponse: response)
+
+		defer {
+			response.requestCompletedCallback()
 		}
 		
-		response.requestCompletedCallback()
+		processWebServiceRequest(request, withParameters: ["startLat", "startLon", "endLat", "endLon"],
+		                         usingDatabaseQuery: self.queryDatabase,
+		                         andParser:	self.parseResults,
+		                         andRespondWith: response)
 	}
 }
