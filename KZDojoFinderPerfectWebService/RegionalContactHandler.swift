@@ -44,6 +44,10 @@ func loadRegionContactDatabaseResultsFrom(results: PostgreSQL.PGResult, forRow r
 	return values
 }
 
+enum RegionContactError: ErrorType {
+	case NoRecordFound(String)
+	case TooManyRecordsFound(String)
+}
 
 class GetRegionContactHandler: RequestHandler {
 	
@@ -53,50 +57,21 @@ class GetRegionContactHandler: RequestHandler {
 			response.requestCompletedCallback()
 		}
 		
-		print("parms \(request.params())")
-		
-		let region = request.param("region")
-		
-		if let region = region {
-			
-			let connection = PGConnection()
-			defer {
-				connection.close()
-			}
-			let status = connectToDatabase(connection)
-			
-			guard status == .OK else {
-				encodeErrorResponse(400, withMessage: "Failed to connect to database, responded with status of \(status)", forResponse: response)
-				return;
-			}
-			
-			do {
-				let results = connection.exec("select * from regioncontacts where region = $1",
-				                              params: [region])
-				let contact = try loadRegionContactDatabaseResultsFrom(results)
-
-				guard contact.count > 0 else {
-					encodeErrorResponse(400, withMessage: "Could not find any regional contact for region \(region)", forResponse: response)
-					return;
-				}
-				guard contact.count == 1 else {
-					encodeErrorResponse(400, withMessage: "Found more then one regional contact for region \(region)?", forResponse: response)
-					return;
-				}
-				
-				var jsonResults = [String: AnyObject]()
-				jsonResults["status"] = "ok"
-				jsonResults["count"] = contact.count
-				jsonResults["contact"] = contact[0]
-					
-				encodeResponse(jsonResults, forResponse: response)
-			} catch let message {
-				encodeErrorResponse(400, withMessage: "Failed to execute request: \(message)", forResponse: response)
-			}
-			
-		} else {
-			encodeErrorResponse(400, withMessage: "One or missing parameters", forResponse: response)
-		}
+		processWebServiceRequest(request, withParameters: ["region"],
+		               usingDatabaseQuery: { (parameters: [String: String]) -> Query in
+										return Query(query: "select * from regioncontacts where region = $1", parameters: [parameters["region"]!])
+									 },
+		               andParser:	{ (results: PGResult, parameters: [String: String]) throws -> RequestResponse in
+										let contact  = try loadRegionContactDatabaseResultsFrom(results)
+										guard contact.count > 0 else {
+											throw RegionContactError.NoRecordFound("Could not find any regional contact for region \(parameters["region"])")
+										}
+										guard contact.count == 1 else {
+											throw RegionContactError.TooManyRecordsFound("Found more then one regional contact for region \(parameters["region"])?")
+										}
+										return RequestResponse(key: "contact", value: contact[0], count: contact.count)
+									 },
+		               andRespondWith: response)
 		
 	}
 }
