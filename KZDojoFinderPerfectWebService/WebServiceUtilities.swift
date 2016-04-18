@@ -58,6 +58,11 @@ as the "count" parameter
 typealias ResultParser = (PGResult, [String: String]) throws -> RequestResponse
 
 /**
+Some services may want to add additional response, this gives them that chance...
+*/
+typealias AdditionalResponse = (PGConnection, [String: String]) throws -> RequestResponse
+
+/**
 Provides the functionality for building the actual query which is executed against
 the database.
 
@@ -73,7 +78,10 @@ typealias DatabaseQuery = ([String: String]) -> Query
 This function makes the connection to the database, executes the query and processes the results
 and returns a dictionary of values which can be encoded into a json response
 */
-func processWebServiceRequestWithQuery(query: Query, withParameters parameters:[String: String], parser: ResultParser) throws -> [String: AnyObject] {
+func processWebServiceRequestWithQuery(query: Query,
+                                       withParameters parameters:[String: String],
+                                                      parser: ResultParser,
+                                                      withAdditionalResponses additionalResponses: [AdditionalResponse] = []) throws -> [String: AnyObject] {
 	let connection = PGConnection()
 	defer {
 		connection.close()
@@ -92,18 +100,28 @@ func processWebServiceRequestWithQuery(query: Query, withParameters parameters:[
 	jsonResults["count"] = queryResponse.count
 	jsonResults[queryResponse.key] = queryResponse.value
 	
+	for additionalResponse in additionalResponses {
+		let requestResponse = try additionalResponse(connection, parameters)
+		jsonResults[requestResponse.key] = requestResponse.value
+	}
+	
 	return jsonResults
 }
 
 /**
 This function encodes the results of the request into the response
 */
-func processWebServiceRequestWithQuery(query: Query, withRequestParameters parameters:[String: String], parser: ResultParser, andRespondWith response: WebResponse) {
+func processWebServiceRequestWithQuery(query: Query,
+                                       withRequestParameters parameters:[String: String],
+																			 parser: ResultParser,
+                                       andRespondWith response: WebResponse,
+	                                     withAdditionalResponses additionalResponses: [AdditionalResponse] = []) {
 	do {
 		let requestResponse = try processWebServiceRequestWithQuery(
 			query,
 			withParameters: parameters,
-			parser: parser)
+			parser: parser,
+			withAdditionalResponses: additionalResponses)
 		
 		encodeResponse(requestResponse, forResponse: response)
 	} catch let message {
@@ -111,7 +129,12 @@ func processWebServiceRequestWithQuery(query: Query, withRequestParameters param
 	}
 }
 
-func processWebServiceRequest(request: WebRequest, withParameters parameters: [String], usingDatabaseQuery query: DatabaseQuery, andParser parser: ResultParser, andRespondWith response: WebResponse) {
+func processWebServiceRequest(request: WebRequest,
+                              withParameters parameters: [String],
+															usingDatabaseQuery query: DatabaseQuery,
+															andParser parser: ResultParser,
+	                            andRespondWith response: WebResponse,
+															withAdditionalResponses additionalResponses: [AdditionalResponse] = []) {
 	var parameterValues = [String: String]()
 	for parameter in parameters {
 		if let value = request.param(parameter) {
@@ -128,5 +151,6 @@ func processWebServiceRequest(request: WebRequest, withParameters parameters: [S
 		query(parameterValues),
 		withRequestParameters: parameterValues,
 		parser: parser,
-		andRespondWith: response)
+		andRespondWith: response,
+		withAdditionalResponses: additionalResponses)
 }

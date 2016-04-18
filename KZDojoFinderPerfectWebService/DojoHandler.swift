@@ -75,7 +75,7 @@ func loadDojoDatabaseResultsFrom(results: PostgreSQL.PGResult, forRow row: Int, 
 /*
 Helper function for loading a individual dojo by a given key
 */
-func loadDojoByKey(key: String, fromConnection connection: PGConnection) throws -> [String: AnyObject]? {
+func loadDojoByKey(key: String, fromConnection connection: PGConnection) throws -> [String: AnyObject] {
 	let results = connection.exec("select * from dojos where key = $1",
 	                     params: [key])
 	
@@ -97,7 +97,7 @@ Handler for getting the dojos within a specific region/area
 */
 public class GetDojosWithinHandler: RequestHandler {
 	
-	func queryDatabase(parameters: [String: String]) -> Query {
+	func queryForDatabase(parameters: [String: String]) -> Query {
 		return Query(query: "select * from dojos where latitude < $1 and latitude > $2 and longitude > $3 and longitude < $4",
 		             parameters: [parameters["startLat"]!, parameters["endLat"]!, parameters["startLon"]!, parameters["endLon"]!])
 	}
@@ -114,7 +114,7 @@ public class GetDojosWithinHandler: RequestHandler {
 		}
 		
 		processWebServiceRequest(request, withParameters: ["startLat", "startLon", "endLat", "endLon"],
-		                         usingDatabaseQuery: self.queryDatabase,
+		                         usingDatabaseQuery: self.queryForDatabase,
 		                         andParser:	self.parseResults,
 		                         andRespondWith: response)
 	}
