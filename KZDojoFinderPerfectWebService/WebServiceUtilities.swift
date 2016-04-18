@@ -80,8 +80,8 @@ and returns a dictionary of values which can be encoded into a json response
 */
 func processWebServiceRequestWithQuery(query: Query,
                                        withParameters parameters:[String: String],
-                                                      parser: ResultParser,
-                                                      withAdditionalResponses additionalResponses: [AdditionalResponse] = []) throws -> [String: AnyObject] {
+																			 withAdditionalResponses additionalResponses: [AdditionalResponse] = [],
+                                       withParser parser: ResultParser) throws -> [String: AnyObject] {
 	let connection = PGConnection()
 	defer {
 		connection.close()
@@ -113,15 +113,15 @@ This function encodes the results of the request into the response
 */
 func processWebServiceRequestWithQuery(query: Query,
                                        withRequestParameters parameters:[String: String],
-																			 parser: ResultParser,
-                                       andRespondWith response: WebResponse,
-	                                     withAdditionalResponses additionalResponses: [AdditionalResponse] = []) {
+																			 withParser parser: ResultParser,
+																			 withAdditionalResponses additionalResponses: [AdditionalResponse] = [],
+                                       andRespondWith response: WebResponse) {
 	do {
 		let requestResponse = try processWebServiceRequestWithQuery(
 			query,
 			withParameters: parameters,
-			parser: parser,
-			withAdditionalResponses: additionalResponses)
+			withAdditionalResponses: additionalResponses,
+			withParser: parser)
 		
 		encodeResponse(requestResponse, forResponse: response)
 	} catch let message {
@@ -150,7 +150,7 @@ func processWebServiceRequest(request: WebRequest,
 	processWebServiceRequestWithQuery(
 		query(parameterValues),
 		withRequestParameters: parameterValues,
-		parser: parser,
-		andRespondWith: response,
-		withAdditionalResponses: additionalResponses)
+		withParser: parser,
+		withAdditionalResponses: additionalResponses,
+		andRespondWith: response)
 }
