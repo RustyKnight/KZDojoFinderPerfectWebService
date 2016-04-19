@@ -13,6 +13,8 @@ A "generic" set of database errors which might occur
 */
 enum DatabaseError: ErrorType {
 	case QueryFailed(String)
+	case NoRecordsFoundForQuery(String)
+	case TooManyRecordsFoundForQuery(String)
 }
 
 

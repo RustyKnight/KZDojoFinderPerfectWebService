@@ -34,6 +34,10 @@ enum DatabaseRequestError: ErrorType {
 	case DatabaseConnectionError(String)
 }
 
+enum WebServiceError: ErrorType {
+	case MissingParameter(String)
+}
+
 struct Query {
 	let query: String
 	let parameters: [String]
@@ -74,6 +78,19 @@ bound to the queries parameters
 */
 typealias DatabaseQuery = ([String: String]) -> Query
 
+func makeConnectionToDatabase() throws -> PGConnection {
+
+	let connection = PGConnection()
+	let status = connectToDatabase(connection)
+	
+	guard status == .OK else {
+		throw DatabaseRequestError.DatabaseConnectionError("Failed to connect to database, responded with status of \(status)")
+	}
+	
+	return connection
+	
+}
+
 /**
 This function makes the connection to the database, executes the query and processes the results
 and returns a dictionary of values which can be encoded into a json response
@@ -82,18 +99,16 @@ func processWebServiceRequestWithQuery(query: Query,
                                        withParameters parameters:[String: String],
 																			 withAdditionalResponses additionalResponses: [AdditionalResponse] = [],
                                        withParser parser: ResultParser) throws -> [String: AnyObject] {
-	let connection = PGConnection()
+	let connection = try makeConnectionToDatabase()
 	defer {
 		connection.close()
-	}
-	let status = connectToDatabase(connection)
-	
-	guard status == .OK else {
-		throw DatabaseRequestError.DatabaseConnectionError("Failed to connect to database, responded with status of \(status)")
 	}
 	
 	let results = connection.exec(query.query,
 	                              params: query.parameters)
+	defer {
+		results.close()
+	}
 	let queryResponse = try parser(results, parameters)
 	var jsonResults = [String: AnyObject]()
 	jsonResults["status"] = "ok"
@@ -125,8 +140,21 @@ func processWebServiceRequestWithQuery(query: Query,
 		
 		encodeResponse(requestResponse, forResponse: response)
 	} catch let message {
-		encodeErrorResponse(400, withMessage: "\(message)", forResponse: response)
+		encodeErrorResponse(200, withMessage: "\(message)", forResponse: response)
 	}
+}
+
+func getParameterValuesFromRequest(request: WebRequest, withParameters parameters: [String]) -> [String: String] {
+
+	var parameterValues = [String: String]()
+	for parameter in parameters {
+		if let value = request.param(parameter) {
+			parameterValues[parameter] = value
+		}
+	}
+	
+	return parameterValues
+	
 }
 
 func processWebServiceRequest(request: WebRequest,
@@ -135,15 +163,10 @@ func processWebServiceRequest(request: WebRequest,
 															andParser parser: ResultParser,
 	                            andRespondWith response: WebResponse,
 															withAdditionalResponses additionalResponses: [AdditionalResponse] = []) {
-	var parameterValues = [String: String]()
-	for parameter in parameters {
-		if let value = request.param(parameter) {
-			parameterValues[parameter] = value
-		}
-	}
 	
+	let parameterValues = getParameterValuesFromRequest(request, withParameters: parameters)
 	guard parameterValues.count == parameters.count else {
-		encodeErrorResponse(400, withMessage: "One or more missing parameters", forResponse: response)
+		encodeErrorResponse(200, withMessage: "One or more missing parameters", forResponse: response)
 		return;
 	}
 	

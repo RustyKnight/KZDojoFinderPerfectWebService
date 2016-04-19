@@ -37,10 +37,10 @@ func encodeResponse(values: [String: AnyObject], forResponse response: WebRespon
 				response.appendBodyString(text)
 				response.setStatus(withStatus, message: andMessage)
 			} else {
-				encodeErrorResponse(400, withMessage: "JSON encoding failed for unknown reason", forResponse: response)
+				encodeErrorResponse(200, withMessage: "JSON encoding failed for unknown reason", forResponse: response)
 			}
 		} catch let message {
-			encodeErrorResponse(400, withMessage: "\(message)", forResponse: response)
+			encodeErrorResponse(200, withMessage: "\(message)", forResponse: response)
 		}
 	}
 	
