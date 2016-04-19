@@ -52,6 +52,21 @@ enum RegionContactError: ErrorType {
 
 class GetRegionContactHandler: RequestHandler {
 	
+	func queryForDataWithParameters(parameters: [String: String]) -> Query {
+		return Query(query: "select * from regioncontacts where region = $1", parameters: [parameters["region"]!])
+	}
+	
+	func parseDatabaseResults(results: PGResult, parameters: [String: String]) throws -> RequestResponse {
+		let contact  = try loadRegionContactDatabaseResultsFrom(results)
+		guard contact.count > 0 else {
+			throw RegionContactError.NoRecordFound("Could not find any regional contact for region \(parameters["region"])")
+		}
+		guard contact.count == 1 else {
+			throw RegionContactError.TooManyRecordsFound("Found more then one regional contact for region \(parameters["region"])?")
+		}
+		return RequestResponse(key: "contact", value: contact[0], count: contact.count)
+	}
+	
 	func handleRequest(request: WebRequest, response: WebResponse) {
 		
 		defer {
@@ -59,19 +74,8 @@ class GetRegionContactHandler: RequestHandler {
 		}
 		
 		processWebServiceRequest(request, withParameters: ["region"],
-		                         usingDatabaseQuery: { (parameters: [String: String]) -> Query in
-															return Query(query: "select * from regioncontacts where region = $1", parameters: [parameters["region"]!])
-			},
-		                         andParser:	{ (results: PGResult, parameters: [String: String]) throws -> RequestResponse in
-															let contact  = try loadRegionContactDatabaseResultsFrom(results)
-															guard contact.count > 0 else {
-																throw RegionContactError.NoRecordFound("Could not find any regional contact for region \(parameters["region"])")
-															}
-															guard contact.count == 1 else {
-																throw RegionContactError.TooManyRecordsFound("Found more then one regional contact for region \(parameters["region"])?")
-															}
-															return RequestResponse(key: "contact", value: contact[0], count: contact.count)
-			},
+		                         usingDatabaseQuery: self.queryForDataWithParameters,
+		                         andParser:	self.parseDatabaseResults,
 		                         andRespondWith: response)
 		
 	}
