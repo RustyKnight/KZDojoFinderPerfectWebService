@@ -18,6 +18,7 @@
 		70AAFD9D1CC2253F0013555B /* RegionalContactHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */; };
 		70AAFDA11CC381590013555B /* WebServiceUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFDA01CC381590013555B /* WebServiceUtilities.swift */; };
 		70AAFDA31CC495E00013555B /* DojoPictureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFDA21CC495E00013555B /* DojoPictureHandler.swift */; };
+		70AAFDA51CC603B00013555B /* GetRegionContactPictureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AAFDA41CC603B00013555B /* GetRegionContactPictureHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegionalContactHandler.swift; sourceTree = "<group>"; };
 		70AAFDA01CC381590013555B /* WebServiceUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebServiceUtilities.swift; sourceTree = "<group>"; };
 		70AAFDA21CC495E00013555B /* DojoPictureHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DojoPictureHandler.swift; sourceTree = "<group>"; };
+		70AAFDA41CC603B00013555B /* GetRegionContactPictureHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetRegionContactPictureHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 				70AAFD951CC1A9ED0013555B /* SessionHandler.swift */,
 				70AAFD9C1CC2253F0013555B /* RegionalContactHandler.swift */,
 				70AAFDA21CC495E00013555B /* DojoPictureHandler.swift */,
+				70AAFDA41CC603B00013555B /* GetRegionContactPictureHandler.swift */,
 			);
 			name = Handlers;
 			sourceTree = "<group>";
@@ -178,6 +181,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70AAFDA51CC603B00013555B /* GetRegionContactPictureHandler.swift in Sources */,
 				705DED751CC1067A002D5081 /* DojoHandler.swift in Sources */,
 				70AAFDA31CC495E00013555B /* DojoPictureHandler.swift in Sources */,
 				705DED731CC10646002D5081 /* PerfectHandlers.swift in Sources */,
