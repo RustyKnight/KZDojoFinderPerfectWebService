@@ -1,10 +1,11 @@
 //
-//  RegionalContactHandler.swift
+//  RegionContactHandler.swift
 //  KZDojoFinderPerfectWebService
 //
-//  Created by Shane Whitehead on 16/04/2016.
+//  Created by Shane Whitehead on 20/04/2016.
 //  Copyright © 2016 KaiZen. All rights reserved.
 //
+
 import PerfectLib
 import PostgreSQL
 
@@ -58,21 +59,22 @@ class GetRegionContactHandler: RequestHandler {
 		}
 		
 		processWebServiceRequest(request, withParameters: ["region"],
-		               usingDatabaseQuery: { (parameters: [String: String]) -> Query in
-										return Query(query: "select * from regioncontacts where region = $1", parameters: [parameters["region"]!])
-									 },
-		               andParser:	{ (results: PGResult, parameters: [String: String]) throws -> RequestResponse in
-										let contact  = try loadRegionContactDatabaseResultsFrom(results)
-										guard contact.count > 0 else {
-											throw RegionContactError.NoRecordFound("Could not find any regional contact for region \(parameters["region"])")
-										}
-										guard contact.count == 1 else {
-											throw RegionContactError.TooManyRecordsFound("Found more then one regional contact for region \(parameters["region"])?")
-										}
-										return RequestResponse(key: "contact", value: contact[0], count: contact.count)
-									 },
-		               andRespondWith: response)
+		                         usingDatabaseQuery: { (parameters: [String: String]) -> Query in
+															return Query(query: "select * from regioncontacts where region = $1", parameters: [parameters["region"]!])
+			},
+		                         andParser:	{ (results: PGResult, parameters: [String: String]) throws -> RequestResponse in
+															let contact  = try loadRegionContactDatabaseResultsFrom(results)
+															guard contact.count > 0 else {
+																throw RegionContactError.NoRecordFound("Could not find any regional contact for region \(parameters["region"])")
+															}
+															guard contact.count == 1 else {
+																throw RegionContactError.TooManyRecordsFound("Found more then one regional contact for region \(parameters["region"])?")
+															}
+															return RequestResponse(key: "contact", value: contact[0], count: contact.count)
+			},
+		                         andRespondWith: response)
 		
 	}
 }
+
 
