@@ -41,7 +41,7 @@ func parseSessionDatabaseResultsFrom(results: PostgreSQL.PGResult, forRow row: I
 	let startTime = results.getFieldInt64(row, fieldIndex: fieldNames["starttime"]!)
 	let type = results.getFieldInt64(row, fieldIndex: fieldNames["type"]!)
 	
-	values["sessionkey"] = Int(sessionKey)
+	values["key"] = Int(sessionKey)
 	values["dojokey"] = Int(dojoKey)
 	values["dayofweek"] = Int(dow)
 	values["details"] = details
